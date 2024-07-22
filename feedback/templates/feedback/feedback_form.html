@@ -1,0 +1,957 @@
+<!-- feedback/templates/feedback_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback Form</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'feedback/feedback_form.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.feedback-question:first').addClass('active'); // Show the first question initially
+
+            updateButtonVisibility(); // Call initially to set button visibility
+
+            $('.btn-next').click(function() {
+                var current = $('.feedback-question.active');
+                current.removeClass('active');
+                current.next('.feedback-question').addClass('active');
+                updateButtonVisibility(); // Update button visibility after navigation
+            });
+
+            $('.btn-prev').click(function() {
+                var current = $('.feedback-question.active');
+                current.removeClass('active');
+                current.prev('.feedback-question').addClass('active');
+                updateButtonVisibility(); // Update button visibility after navigation
+            });
+
+            function updateButtonVisibility() {
+                var currentQuestion = $('.feedback-question.active');
+                var isFirstQuestion = currentQuestion.is(':first-child');
+                var isLastQuestion = currentQuestion.is(':last-child');
+
+                if (isFirstQuestion) {
+                    $('.btn-prev').hide(); // Hide previous button on first question
+                } else {
+                    $('.btn-prev').show(); // Show previous button on other questions
+                }
+
+                if (isLastQuestion) {
+                    $('.btn-next').hide(); // Hide next button on last question
+                } else {
+                    $('.btn-next').show(); // Show next button on other questions
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const progressBar = document.getElementById('progressBar');
+        const form = document.getElementById('feedbackForm');
+        const fields = form.querySelectorAll('.feedback-question');
+        const totalQuestions = fields.length;
+        let currentQuestion = 1;
+
+        function updateProgressBar() {
+            const percent = (currentQuestion / totalQuestions) * 100;
+            progressBar.style.width = percent + '%';
+        }
+
+        updateProgressBar();
+
+        document.querySelector('.btn-next').addEventListener('click', function() {
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                updateProgressBar();
+            }
+        });
+
+        document.querySelector('.btn-prev').addEventListener('click', function() {
+            if (currentQuestion > 1) {
+                currentQuestion--;
+                updateProgressBar();
+            }
+        });
+    });
+
+
+    </script>
+</head>
+<body>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+            background-color: #4e54c8;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+
+.feedback-form-container {
+    width: 80%;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    transition: background-color 0.3s ease;
+}
+
+.feedback-form-container:hover {
+    background-color: #f7f7f7;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+}
+
+#title {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.feedback-questions {
+    margin-bottom: 20px;
+    font-size: large;
+}
+
+.feedback-question {
+    display: none;
+}
+
+.feedback-question.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.feedback-textarea {
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feedback-textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.button-container button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 0px 10px;
+}
+
+.button-container button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.button-container button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.button-container button:not(:last-child) {
+    margin-right: 10px;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 5px;
+    background-color: #f0f0f0;
+    /* margin-bottom: 20px; */
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #4CAF50;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+
+.area{
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    background: #4e54c8;  
+    background: -webkit-linear-gradient(to left, #8f94fb, #4e54c8);  
+    width: 93%;
+    height: 93%;
+    z-index: -1;
+}
+
+.circles{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.circles li{
+    position: absolute;
+    display: block;
+    list-style: none;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    animation: animate 25s linear infinite;
+    bottom: -150px;
+    
+}
+
+.circles li:nth-child(1){
+    left: 25%;
+    width: 80px;
+    height: 80px;
+    animation-delay: 0s;
+}
+
+
+.circles li:nth-child(2){
+    left: 10%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 2s;
+    animation-duration: 12s;
+}
+
+.circles li:nth-child(3){
+    left: 70%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 4s;
+}
+
+.circles li:nth-child(4){
+    left: 40%;
+    width: 60px;
+    height: 60px;
+    animation-delay: 0s;
+    animation-duration: 18s;
+}
+
+.circles li:nth-child(5){
+    left: 65%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 0s;
+}
+
+.circles li:nth-child(6){
+    left: 75%;
+    width: 110px;
+    height: 110px;
+    animation-delay: 3s;
+}
+
+.circles li:nth-child(7){
+    left: 35%;
+    width: 150px;
+    height: 150px;
+    animation-delay: 7s;
+}
+
+.circles li:nth-child(8){
+    left: 50%;
+    width: 25px;
+    height: 25px;
+    animation-delay: 15s;
+    animation-duration: 45s;
+}
+
+.circles li:nth-child(9){
+    left: 20%;
+    width: 15px;
+    height: 15px;
+    animation-delay: 2s;
+    animation-duration: 35s;
+}
+
+.circles li:nth-child(10){
+    left: 85%;
+    width: 150px;
+    height: 150px;
+    animation-delay: 0s;
+    animation-duration: 11s;
+}
+
+
+
+@keyframes animate {
+
+    0%{
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+        border-radius: 0;
+    }
+
+    100%{
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+        border-radius: 50%;
+    }
+
+}
+
+
+        
+    </style>
+
+
+    <style>
+
+        .chat-box {
+            height: 90%;
+            width: 400px;
+            position: absolute;
+            margin: 0 auto;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            z-index: 15;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            right: 0;
+            bottom: 0;
+            margin: 15px;
+            background: #333;
+            border-radius: 15px;
+            visibility: hidden;
+        }
+    
+        .chat-box-header {
+            height: 8%;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            display: flex;
+            font-size: 14px;
+            padding: 0.5em 0;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2), 0 -1px 10px rgba(172, 54, 195, 0.3);
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.025);
+        }
+    
+        .chat-box-header h3 {
+            font-family: Ubuntu;
+            font-weight: 400;
+            float: left;
+            position: absolute;
+            left: 25px;
+            color: white;
+        }
+    
+        .chat-box-header p {
+            float: right;
+            position: absolute;
+            right: 20px;
+            top: -15px;
+            cursor: pointer;
+            {% comment %} height: 25px;
+            width: 25px; {% endcomment %}
+            text-align: center;
+            line-height: 3.25;
+            margin: 0;
+            color: white;
+            font-size: 30px;
+            {% comment %} background: white; {% endcomment %}
+        }
+    
+        .chat-box-header p:hover {
+            color: red;
+        }
+    
+        .chat-box-body {
+            height: 75%;
+            background: rgba(182, 154, 199, 0.7); /* Using RGBA for translucency */
+            overflow-y: scroll;
+            padding: 12px;
+            border-radius: 15px; /* Optional: Matches the border radius of the chat box */
+        }
+    
+        .chat-box-body-send {
+            width: 250px;
+            float: right;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.015);
+            margin-bottom: 14px;
+        }
+    
+        .chat-box-body-send p {
+            margin: 0;
+            color: #444;
+            font-size: 14px;
+            margin-bottom: 0.25rem;
+        }
+    
+        .chat-box-body-send span {
+            float: right;
+            color: #777;
+            font-size: 10px;
+        }
+    
+        .chat-box-body-receive {
+            width: 250px;
+            float: left;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.015);
+            margin-bottom: 14px;
+        }
+    
+        .chat-box-body-receive p {
+            margin: 0;
+            color: #444;
+            font-size: 14px;
+            margin-bottom: 0.25rem;
+        }
+    
+        .chat-box-body-receive span {
+            float: right;
+            color: #777;
+            font-size: 10px;
+        }
+    
+        .chat-box-body::-webkit-scrollbar {
+            width: 5px;
+            opacity: 0;
+        }
+    
+        .chat-box-footer {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        .chat-box-footer button {
+            border: none;
+            padding: 16px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+    
+        .chat-box-footer button:focus {
+            outline: none;
+        }
+    
+        .chat-box-footer input {
+            padding: 10px;
+            border: none;
+            appearance: none;
+            border-radius: 50px;
+            background: whitesmoke;
+            margin: 10px;
+            font-family: Ubuntu;
+            font-weight: 600;
+            color: #444;
+            width: 280px;
+        }
+    
+        .chat-box-footer input:focus {
+            outline: none;
+        }
+    
+        .chat-box-footer .send {
+            vertical-align: middle;
+            align-items: center;
+            justify-content: center;
+            transform: translate(0px, 20px);
+            cursor: pointer;
+        }
+    
+        .chat-button {
+            padding: 25px 16px;
+            background: green;
+            width: 120px;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            margin: 15px;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            border-bottom-left-radius: 25px;
+            box-shadow: 0 2px 15px rgba(44, 80, 239, 0.21);
+            cursor: pointer;
+        }
+        
+        .chat-button span::before {
+            content: "";
+            height: 15px;
+            width: 15px;
+            background: #c44fa1; 
+            position: absolute;
+            transform: translate(0, -7px);
+            border-radius: 15px;
+            animation: blink 1s infinite; /* Apply the blinking animation */
+        }
+    
+        .chat-button span::after {
+            content: "Message Us";
+            font-size: 14px;
+            color: white;
+            position: absolute;
+            left: 50px;
+            top: 18px;
+        }
+    
+        {% comment %} .modal {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.1);
+            transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+        }
+    
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 1rem 1.5rem;
+            width: 24rem;
+            border-radius: 0.5rem;
+        }
+    
+        .modal-close-button {
+            float: right;
+            width: 1.5rem;
+            line-height: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 0.25rem;
+            background-color: lightgray;
+        }
+    
+        .modal-close-button:hover {
+            background-color: darkgray;
+        }
+    
+        .show-modal {
+            opacity:1;
+            visibility: visible;
+            transform: scale(1);
+            transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+            z-index: 30;
+        } {% endcomment %}
+    
+        @media only screen and (max-width: 450px) {
+            .chat-box {
+                min-width: 100% !important;
+            }
+        }
+
+        @keyframes blink {
+            0% {
+                background: #c44fa1;
+                opacity: 1;
+            }
+            50% {
+                background: #f0a;
+                opacity: 0.5;
+            }
+            100% {
+                background: #c44fa1;
+                opacity: 1;
+            }
+        }
+
+        #start-detection-btn,
+        #stop-detection-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #start-detection-btn:hover,
+        #stop-detection-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .form-container {
+            margin-bottom: 20px; /* Space between form and buttons */
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #start-detection-btn {
+            background-color: #28a745; /* Green for start button */
+            color: white;
+        }
+
+        #stop-detection-btn {
+            background-color: #dc3545; /* Red for stop button */
+            color: white;
+        }
+
+        #status {
+            margin-top: 10px;
+            color: white;
+        }
+
+        #clear-chat {
+            background-color: #f1594e; /* Red background */
+            color: white; /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+    
+        /* Add a hover effect */
+        #clear-chat:hover {
+            background-color: hsl(0, 75%, 42%); /* Darker red */
+        }
+
+    </style>
+
+    <div class="area">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+    <div class="feedback-form-container">
+        <h2 id="title">Feedback Form</h2>
+        <form method="post" id="feedbackForm">
+            {% csrf_token %}
+            <div class="feedback-questions">
+                {% for field in form.visible_fields %}
+                    <div class="feedback-question">
+                        <label for="{{ field.id_for_label }}">Question {{ forloop.counter }}: {{ field.label }}</label>
+                        {{ field }}
+                        <!-- <button type="button" class="mic-btn" onclick="startDictation('{{ field.id_for_label }}')">🎤</button> -->
+                    </div>
+                {% endfor %}
+            </div>
+    
+            <div class="button-container">
+                <button type="button" class="btn-prev">Previous</button>
+                <button type="button" class="btn-next" id="nextBtn">Next</button>
+                <button type="submit">Submit Feedback</button>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </form>
+    </div>
+
+    <div class="chat-box">
+        <div class="chat-box-header">
+            <h3>Message Us</h3>
+            <p><i class="fa fa-times"></i> X</p>
+        </div>
+        <div class="chat-box-body"></div>
+        <div class="chat-box-footer">
+            {% comment %} <button id="addExtra"><i class="fa fa-plus"></i></button> {% endcomment %}
+            <input id="chat-message" placeholder="Enter Your Message" type="text" />
+            <i class="send far fa-paper-plane"></i>
+            <button id="clear-chat"><i class="fa fa-trash"></i> Clear Chat</button>
+        </div>
+    </div>
+    <div class="chat-button"><span></span></div>
+
+
+    <button id="start-detection-btn">Start Emotion Detection</button>
+    <button id="stop-detection-btn">Stop Emotion Detection</button>
+
+    {% comment %} <div class="modal">
+        <div class="modal-content">
+            <span class="modal-close-button">&times;</span>
+            <h1>Add What you want here.</h1>
+        </div>
+    </div> {% endcomment %}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var recognition;
+            var isRecognizing = false;
+    
+            if (window.hasOwnProperty('webkitSpeechRecognition')) {
+                recognition = new webkitSpeechRecognition();
+    
+                recognition.continuous = true; // Enable continuous mode
+                recognition.interimResults = true; // Use interimResults to get partial results
+                recognition.lang = 'en-US';
+    
+                recognition.onstart = function() {
+                    console.log('Voice recognition started. Try speaking into the microphone.');
+                    isRecognizing = true;
+                };
+    
+                recognition.onresult = function(event) {
+                    // Find the input field dynamically based on the active question
+                    var activeQuestion = document.querySelector('.feedback-question.active');
+                    var inputField = activeQuestion.querySelector('input, textarea'); // Assuming input or textarea is used
+    
+                    if (!inputField) {
+                        console.error('Input field not found');
+                        return;
+                    }
+    
+                    var interimTranscript = '';
+                    var finalTranscript = '';
+    
+                    console.log('Recognition result event:', event);
+    
+                    for (var i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+    
+                    console.log('Final Transcript:', finalTranscript);
+                    console.log('Interim Transcript:', interimTranscript);
+    
+                    inputField.value = finalTranscript || interimTranscript;
+                };
+    
+                recognition.onerror = function(event) {
+                    console.error('Error occurred in recognition:', event.error);
+                    recognition.stop();
+                    isRecognizing = false;
+                    document.getElementById('nextBtn').click();
+                };
+    
+                recognition.onend = function() {
+                    console.log('Recognition ended');
+                    isRecognizing = false;
+                };
+    
+                document.addEventListener('keydown', function(event) {
+                    if (event.code === 'Semicolon' && !isRecognizing) {
+                        recognition.start();
+                    }
+                });
+                
+                document.addEventListener('keyup', function(event) {
+                    if (event.code === 'Semicolon' && isRecognizing) {
+                        recognition.stop();
+                    }
+                });
+                
+            } else {
+                alert('Speech recognition not supported in this browser.');
+            }
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        let userMessages = []; 
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        const csrftoken = getCookie('csrftoken');
+    
+        // Setting up AJAX with CSRF token
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        $('.chat-button').on('click', function() {
+            $('.chat-button').css({ "display": "none" });
+            $('.chat-box').css({ "visibility": "visible" });
+    
+            setTimeout(function() {
+                if ($(".chat-box-body").children().length === 0) {
+                    $(".chat-box-body").append(
+                        `<div class="chat-box-body-receive">
+                            <p>Hello! How can I assist you today?</p>
+                            <span>${new Date().toLocaleTimeString()}</span>
+                        </div>`
+                    );
+                    $(".chat-box-body").scrollTop($(".chat-box-body")[0].scrollHeight);
+                }
+            }, 1000); 
+        });
+    
+        $('.chat-button').on('click', function() {
+            $('.chat-button').css({ "display": "none" });
+            $('.chat-box').css({ "visibility": "visible" });
+        });
+    
+        $('.chat-box .chat-box-header p').on('click', function() {
+            $('.chat-button').css({ "display": "block" });
+            $('.chat-box').css({ "visibility": "hidden" });
+        });
+    
+        $('#clear-chat').on('click', function() {
+        
+            $.ajax({
+                type: "POST",
+                url: "/process_chat_emotions/",
+                data: JSON.stringify({ chat_messages: userMessages }),
+                contentType: "application/json",
+                success: function(response) {
+                    console.log("Emotions processed and saved.");
+                    userMessages = []; // Clear messages after processing
+                    $(".chat-box-body").empty(); // Clear the chat window
+                },
+                error: function(error) {
+                    console.error("Error:", error);
+                }
+            });
+        });
+    
+        function sendMessage() {
+            const message = $("#chat-message").val();
+            if (message) {
+                userMessages.push(message);
+                $(".chat-box-body").append(
+                    `<div class="chat-box-body-send"><p>${message}</p><span>${new Date().toLocaleTimeString()}</span></div>`
+                );
+                
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'chatbot_api' %}", 
+                    data: JSON.stringify({ message: message }),
+                    contentType: "application/json",
+                    success: function(response) {
+                        $(".chat-box-body").append(
+                            `<div class="chat-box-body-receive"><p>${response.response}</p><span>${new Date().toLocaleTimeString()}</span></div>`
+                        );
+                        $("#chat-message").val('');
+                        $(".chat-box-body").scrollTop($(".chat-box-body")[0].scrollHeight);
+                    },
+                    error: function(error) {
+                        console.error("Error:", error);
+                    }
+                });
+            }
+        }
+    
+        $("#chat-message").on('keydown', function(e) {
+            if (e.key === "Enter") { 
+                sendMessage();
+                e.preventDefault(); 
+                $(this).val('');
+            }
+        });
+    
+        $(".send").on("click", function() {
+            sendMessage();
+        });
+    
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#start-detection-btn').click(function() {
+            $.ajax({
+                url: '{% url "start_emotion_detection" %}',
+                method: 'GET',
+                success: function(response) {
+                    console.log(response.status);
+                }
+            });
+        });
+
+        $('#stop-detection-btn').click(function() {
+            $.ajax({
+                url: '{% url "stop_emotion_detection" %}',
+                method: 'GET',
+                success: function(response) {
+                    console.log(response.status);
+                    alert('Most common emotion detected: ' + response.most_common_emotion);
+                }
+            });
+        });
+    });
+</script>
+        
+</body>
+</html>

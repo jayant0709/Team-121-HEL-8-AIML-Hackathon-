@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .charts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-bottom: 40px;
+        }
+        
+        .visual-section {
+            margin-bottom: 40px;
+        }
+        
+        .visual-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            width: 45%;
+            margin: 20px 0;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .small-chart {
+            width: 15%;
+            margin: 10px;
+            text-align: center;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .chart-container h2,
+        .small-chart h3 {
+            text-align: center;
+        }
+        
+        .database {
+            margin-bottom: 40px;
+        }
+        
+        .database h2 {
+            text-align: center;
+        }
+        
+        #databaseTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        #databaseTable th, #databaseTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        #databaseTable th {
+            background-color: #f2f2f2;
+        }
+        
+        #databaseTable td .compact-feedback {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        
+        #databaseTable td .full-feedback {
+            display: none;
+        }
+        
+        #databaseTable td .show {
+            display: block;
+        }
+        
+        .dropdown {
+            position: absolute;
+            display: none;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        .dropdown-content {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .dropdown-content div {
+            padding: 12px 16px;
+            cursor: pointer;
+        }
+        
+        .dropdown-content div:hover {
+            background-color: #ddd;
+        }
+        
+        #filterInput {
+            padding: 10px;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+            border: none;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .actions-cell button {
+            margin-right: 5px;
+        }
+        
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Admin Dashboard</h1>
+        </header>
+        <section class="visual-section">
+            <div class="visual-row">
+                <div class="small-chart" id="Q1ChartContainer">
+                    <h3>Q1</h3>
+                    <canvas id="Q1Chart"></canvas>
+                </div>
+                <div class="small-chart" id="Q2ChartContainer">
+                    <h3>Q2</h3>
+                    <canvas id="Q2Chart"></canvas>
+                </div>
+                <div class="small-chart" id="Q3ChartContainer">
+                    <h3>Q3</h3>
+                    <canvas id="Q3Chart"></canvas>
+                </div>
+                <div class="small-chart" id="Q4ChartContainer">
+                    <h3>Q4</h3>
+                    <canvas id="Q4Chart"></canvas>
+                </div>
+                <div class="small-chart" id="Q5ChartContainer">
+                    <h3>Q5</h3>
+                    <canvas id="Q5Chart"></canvas>
+                </div>
+            </div>
+            <div class="visual-row">
+                <div class="chart-container">
+                    <h2>Overall Emotion</h2>
+                    <canvas id="overallEmotionChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Chatbot Emotion</h2>
+                    <canvas id="chatbotEmotionChart"></canvas>
+                </div>
+            </div>
+        </section>
+        <section class="database">
+            <h2>Complete Database</h2>
+            <table id="databaseTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Emotion</th>
+                        <th>Question 1</th>
+                        <th>Question 2</th>
+                        <th>Question 3</th>
+                        <th>Question 4</th>
+                        <th>Question 5</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <script>
+        // Function to create a pie chart
+        function createPieChart(ctx, labels, data) {
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0'],
+                        hoverBackgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0']
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        // Function to create a doughnut chart for sentiment analysis
+        function createDoughnutChart(ctx, data) {
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#36a2eb', '#ff6384', '#ffce56'],
+                        hoverBackgroundColor: ['#36a2eb', '#ff6384', '#ffce56']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutoutPercentage: 70
+                }
+            });
+        }
+
+        // Fetch data and populate charts and table
+        window.onload = function() {
+            fetch('/fetch_data/')
+                .then(response => response.json())
+                .then(data => {
+                    const feedbackData = data.data;
+
+                    // Data for overall emotion pie chart
+                    const overallEmotionCounts = feedbackData.reduce((acc, feedback) => {
+                        acc[feedback.emotion] = (acc[feedback.emotion] || 0) + 1;
+                        return acc;
+                    }, {});
+                    const overallEmotionLabels = Object.keys(overallEmotionCounts);
+                    const overallEmotionValues = Object.values(overallEmotionCounts);
+                    const overallEmotionCtx = document.getElementById('overallEmotionChart').getContext('2d');
+                    createPieChart(overallEmotionCtx, overallEmotionLabels, overallEmotionValues);
+
+                    // Populate the database table
+                    const databaseTableBody = document.getElementById('databaseTable').getElementsByTagName('tbody')[0];
+                    feedbackData.forEach(row => {
+                        const newRow = databaseTableBody.insertRow();
+                        newRow.insertCell().textContent = row.id;
+                        newRow.insertCell().textContent = row.emotion;
+                        for (let i = 1; i <= 5; i++) {
+                            const sentiment = row[`question_${i}_sentiment`];
+                            newRow.insertCell().textContent = sentiment;
+                        }
+                    });
+
+                    // Create sentiment doughnut charts for each question
+                    const sentimentData = feedbackData.reduce((acc, feedback) => {
+                        for (let i = 1; i <= 5; i++) {
+                            const sentiment = feedback[`question_${i}_sentiment`];
+                            acc[i] = acc[i] || { Positive: 0, Negative: 0, Neutral: 0 };
+                            acc[i][sentiment] = (acc[i][sentiment] || 0) + 1;
+                        }
+                        return acc;
+                    }, {});
+
+                    for (let i = 1; i <= 5; i++) {
+                        const ctx = document.getElementById(`Q${i}Chart`).getContext('2d');
+                        createDoughnutChart(ctx, [
+                            sentimentData[i].Positive,
+                            sentimentData[i].Negative,
+                            sentimentData[i].Neutral
+                        ]);
+                    }
+                });
+        };
+    </script>
+</body>
+</html>
